@@ -107,12 +107,15 @@
                       <input type="number" name="stock[]" value="{{ $price->stock }}" class="form-control" required>
                       <a href="#" class="text text-danger float-end remove_price_line">X</a>
                     </div>
+            <input type="text" name="barcode[]" value="{{ $price->barcode }}"  onchange="return stop_form(this.value)" placeholder="Enter Barcode if any" class="form-control mt-2">
+
                   </div>
 
                   @endforeach
               </div>
-              <a href="javascript:add_row()">Add More</a>
-                <button type="submit" name="btn_Save" class="btn btn-success mt-4 float-end">Save Product پروڈکٹ کو محفوظ کریں۔</button>
+              <a href="javascript:add_row()" class="btn btn-danger mt-2">Add More</a>
+              <button type="button" onclick="complete_scanning()" class="btn btn-shadow  btn-info mt-4 float-end ">Scanning Completed</button>  
+              <button type="submit" disabled style="display: none" id="btn_save" name="btn_Save" class="mr-5 btn btn-shadow btn-success mt-4 float-end">Save Product پروڈکٹ کو محفوظ کریں۔</button>
               </form>
               
             </div>
@@ -123,10 +126,46 @@
     
   </div>
 <script>
+  function complete_scanning(){
+      document.getElementById('btn_save').style.display = "";
+      document.getElementById('btn_save').disabled  = false;
+     }
+
+     function stop_form(barcode){
+      
+      var id = barcode;
+        let a = "{{ route('barcode.verify','id') }}";
+        var url = a.replace('id',id);
+        $.ajax({
+          url:url,
+          type:'GET',
+          data:{},
+          success: function(data){
+            console.log(data);
+            if(data.result == 0){
+
+              document.getElementById('btn_save').style.display = "";
+              
+            }
+            else
+            {
+              alert("Barcode already exists");
+              var focusedElement = document.activeElement;
+              focusedElement.value = "";
+              focusedElement.focus();
+              document.getElementById('btn_save').style.display = "none";
+              
+            }
+          }
+        })
+     }
       function add_row(){
          // var getrow = document.getElementById('dyn_row');
-          $("#dyn_row").append('<div class="row mt-2"><div class="col-sm-2 mt-2"> <label>Unit یونٹ</label> <select name="unit[]" class="form-control" required> <option value="">Select</option> @foreach ($units as $unit) <option value="{{ $unit->unit }}">{{ $unit->unit }}</option> @endforeach </select> </div> <div class="col-sm-2"> <label>Size مقدار/سائز</label> <input type="number" name="qty[]" class="form-control" required> </div> <div class="col-sm-2"> <label>Pur Price قیمت خرید</label> <input type="number" name="pur_price[]" class="form-control" required> </div> <div class="col-sm-2"> <label>Sale Price  قیمت فروخت</label> <input type="number" name="sale_price[]" class="form-control" required> </div> <div class="col-sm-2"> <label>Disc %  فیصد میں رعایت</label> <input type="number" name="disc[]" class="form-control" required> </div><div class="col-sm-2"> <label>Stock   اوپننگ اسٹاک </label> <input type="number" name="stock[]" class="form-control" required><a href="#" class="text text-danger float-end remove_price_line">X</a></div></div>');
+            
+          $("#dyn_row").append('<div class="row mt-2"><div class="col-sm-2 mt-2"> <label>Unit یونٹ</label> <select name="unit[]" class="form-control" required> <option value="">Select</option> @foreach ($units as $unit) <option value="{{ $unit->unit }}">{{ $unit->unit }}</option> @endforeach </select> </div> <div class="col-sm-2"> <label>Size مقدار/سائز</label> <input type="number" name="qty[]" class="form-control" required> </div> <div class="col-sm-2"> <label>Pur Price قیمت خرید</label> <input type="number" name="pur_price[]" class="form-control" required> </div> <div class="col-sm-2"> <label>Sale Price  قیمت فروخت</label> <input type="number" name="sale_price[]" class="form-control" required> </div> <div class="col-sm-2"> <label>Disc %  فیصد میں رعایت</label> <input type="number" name="disc[]" class="form-control" required> </div><div class="col-sm-2"> <label>Stock   اوپننگ اسٹاک </label> <input type="number" name="stock[]" class="form-control" required><a href="#" class="text text-danger float-end remove_price_line">X</a></div><input type="text" name="barcode[]" onchange="return stop_form(this.value)" placeholder="Enter Barcode if any" class="form-control mt-2"></div>');
           $('select').select2();
+          document.getElementById('btn_save').disabled  = true;
+          document.getElementById('btn_save').style.display = "none";
         }
       $('.deen').on('click', '.remove_price_line', function(e) {
     e.preventDefault();

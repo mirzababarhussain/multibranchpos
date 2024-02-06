@@ -50,11 +50,13 @@ class ProductController extends Controller
             'product_description' => $request->product_desc,
             'cate_id' => $request->category
         ]);
-        
+       
+
         for($i=0;$i<=$prices;$i++){
            if(isset($request->unit[$i]))
            {
-                Prices::create([
+            
+                $product = Prices::create([
                     "product_id" => $product->id,
                     "unit" => $request->unit[$i],
                     "size" => $request->qty[$i],
@@ -64,6 +66,20 @@ class ProductController extends Controller
                     "stock" => $request->stock[$i],
                     "created_at" => now()
                 ]);
+                if($request->barcode[$i] == "" || $request->barcode[$i] == 0)
+                {
+                    Prices::where('id',$product->id)->update([
+                        "internal_barcode" => $product->id,
+                        "external_barcode" => $product->id
+                    ]);
+                }
+                else
+                {
+                    Prices::where('id',$product->id)->update([
+                        "internal_barcode" => $product->id,
+                        "external_barcode" => $request->barcode[$i]
+                    ]);
+                }
            }
             
         }
@@ -103,19 +119,20 @@ class ProductController extends Controller
             'category' => 'required',
             'id' => 'required'
         ]);
-        
+        $prices = count($request->unit);
+      
         Product::where('id',$request->id)->update([
             'product_name' => $request->product_name,
             'product_description' => $request->product_desc,
             'cate_id' => $request->category
         ]);
         
-        $prices = count($request->unit);
+
         Prices::where('product_id',$request->id)->delete();
         for($i=0;$i<=$prices;$i++){
            if(isset($request->unit[$i]))
            {
-                Prices::create([
+                $product = Prices::create([
                     "product_id" => $request->id,
                     "unit" => $request->unit[$i],
                     "size" => $request->qty[$i],
@@ -125,6 +142,20 @@ class ProductController extends Controller
                     "stock" => $request->stock[$i],
                     "created_at" => now()
                 ]);
+                if($request->barcode[$i] == "" || $request->barcode[$i] == 0)
+                {
+                    Prices::where('id',$product->id)->update([
+                        "internal_barcode" => $product->id,
+                        "external_barcode" => $product->id
+                    ]);
+                }
+                else
+                {
+                    Prices::where('id',$product->id)->update([
+                        "internal_barcode" => $product->id,
+                        "external_barcode" => $request->barcode[$i]
+                    ]);
+                }
            }
             
         }
@@ -167,7 +198,9 @@ class ProductController extends Controller
         ]);
     }
     public function getsalesizes($product_id){
-        $sizes = BranchStock::where('product_id',$product_id)->where('branch_id',auth()->user()->branch_id)->get();
+        $sizes = BranchStock::where('product_id',$product_id)
+        ->where('branch_id',auth()->user()->branch_id)
+        ->get();
         return response()->json([
             'sizes' => $sizes,
             'product_id' => $product_id

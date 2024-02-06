@@ -59,8 +59,12 @@
                   <tbody>
                     @php
                       use App\Http\Controllers\StockController;
+                      use \Milon\Barcode\DNS1D;
+                      
                       $index = 1;
+                      isset($selected_product) ? $products = $selected_product :  '';
                     @endphp
+                    
                     @foreach ($products as $product)
                       @php
                         $stocks = StockController::stock($product->id,$product->branch_id)
@@ -72,10 +76,13 @@
                       </td>
                       <td>
                         @foreach ($stocks as $stock)
-                          <div class="row">
-                            <div class="col-sm-6">{{ $stock->size }} {{ $stock->unit }}</div>
-                            <div class="col-sm-6">{{ $stock->stock }}</div>
+                          <div class="row mt-3">
+                            <div class="col-sm-3">{{ $stock->size }} {{ $stock->unit }}</div>
+                            <div class="col-sm-3">{{ $stock->stock }}</div>
                             
+                            <div class="col-sm-6">{!! DNS1D::getBarcodeSVG("$stock->internal_barcode", 'C128',1,35,'black', false); !!}
+                              <small><br>{{ $stock->external_barcode }}</small>
+                            </div>
                           </div>
                         @endforeach
                       </td>

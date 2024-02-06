@@ -32,6 +32,21 @@ class StockController extends Controller
             return Prices::where('product_id',$id)->get();
         }
     }
+   public function get_stock_by_product(Request $request){
+    $selected_product = DB::table('branch_stocks')
+    ->join('products','branch_stocks.product_id','=','products.id')
+    ->select('products.*','branch_stocks.branch_id as branch_id')
+    ->where('branch_stocks.branch_id',$request->product_id)
+    ->get();
+
+    $products = Product::where('disable',0)->get();
+    
+    $branches = Branches::where('disable',0)->get();
+
+    $selected_branch = Branches::where('id',auth()->user()->branch_id)->first();
+    
+    return view('stock.branchstock', compact('products','branches','selected_product','selected_branch'));
+   }
     public function branch_stock($id){
         $products = DB::table('branch_stocks')
         ->join('products','branch_stocks.product_id','=','products.id')

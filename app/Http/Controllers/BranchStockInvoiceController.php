@@ -75,7 +75,6 @@ class BranchStockInvoiceController extends Controller
             'inv_status' => $request->status,
             'branch_id' => $request->vendor_id,
             'stock_inv_date' => $request->pur_date,
-            
         ]);
         $stock_inv_data = BranchStockInvoice::where('id',$request->id)->first();
 
@@ -87,7 +86,9 @@ class BranchStockInvoiceController extends Controller
             $newStock = 0;
             foreach($stocklists as $stocklist){
 
-               
+                $barcode = Prices::where('product_id',$stocklist->product_id)
+               ->where('unit',$stocklist->unit)
+               ->where('size',$stocklist->size)->first();
                
                 $stock = BranchStock::where('branch_id',$stock_inv_data->branch_id)
                 ->where('product_id',$stocklist->product_id)
@@ -106,12 +107,16 @@ class BranchStockInvoiceController extends Controller
                 }
                 else
                 {
-                    BranchStock::create([
+                    $product = BranchStock::create([
                         'branch_id' => $stock_inv_data->branch_id,
                         'product_id' => $stocklist->product_id,
                         'unit' => $stocklist->unit,
                         'size' => $stocklist->size,
                         'stock'=> $stocklist->issued_stock
+                    ]);
+                    BranchStock::where('id',$product->id)->update([
+                        'external_barcode' => $barcode->external_barcode,
+                        'internal_barcode' => $product->id
                     ]);
                 }
 
@@ -129,9 +134,7 @@ class BranchStockInvoiceController extends Controller
                ->where('unit',$stocklist->unit)
                ->where('size',$stocklist->size)
                ->update(['stock' => $new_stock]);
-                
-
-          
+            
             }
                      
         }

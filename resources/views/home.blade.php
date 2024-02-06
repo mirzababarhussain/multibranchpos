@@ -2,8 +2,12 @@
 
 @section('content')
 <div class="pc-content">
-
-    <div class="row">
+  @if(auth()->user()->branch_id == 0)
+    
+  @else
+    
+  @include('receipt');
+    <div class="row" id="pos_container">
       <!-- [ sample-page ] start -->
       <div class="col-sm-12">
         <div class="card">
@@ -58,12 +62,12 @@
         
             <div class="row">
               <div class="col-xl-8">
-                <button id="basic" style="display:none" class="btn btn-shadow btn-primary"><i class="fas fa-print"></i> Print</button>
 
-                <div class="card shadow" id="print_area">
+                <div class="card shadow" >
                   
                   <div class="card-body border-bottom bg-light">
                     <div class="row">
+                      
                         <div class="col-sm-3">
                           <h5>Date 
                             <input type="date" name="inv_date" id="inv_date" class="form-control" value="{{ date('Y-m-d') }}">
@@ -83,7 +87,9 @@
                     
                   </div>
                 
+                  <div><input type="text" id="barcode" class="form-control float-end" placeholder="click here to scan barcode" onchange="show_code(this.value)"></div>
                   <div class="card-body p-0 table-body">
+                    
                     <div class="p-0">
                       <table class="table mb-0 border border-secondary" id="pc-dt-simple">
                         <thead style="background-color:#f0e2ae" >
@@ -104,9 +110,7 @@
                       <div class="col-sm-12 text text-center center" id="selected_customer">
                             
                       </div>
-                      <div class="col-sm-12 text text-center center" id="selected_customer">
-                            
-                      </div>
+                      
                     </div>
                   </div>
                 </div>
@@ -173,8 +177,46 @@
       <!-- [ sample-page ] end -->
     </div>
     <input type="hidden" value="0" id="product_counter">
+  @endif
+
   </div>
   <script>
+    
+  function show_code(barcode){
+   
+      document.getElementById('barcode').value = "";
+      var url = '{{ route("barcode.create_sale_list")}}';
+      $.ajax({
+        url:url,
+        type: 'POST',
+        data: {
+          barcode:barcode,
+          inv_id:{{ $data->id }}
+        },
+       success: function(data){
+        console.log(data);
+          
+          if(data.status == 'error'){
+            Swal.fire({
+            icon: 'error',
+            title: data.message
+          });
+          }
+          else
+          {
+
+            get_sale_product();
+          }
+        },
+        error: function(respoonse){
+          Swal.fire({
+            icon: 'info',
+            title: respoonse.message
+          });
+        }
+      });
+  }
+                    
     function confirm_sale_invoice(){
         var inv_date = document.getElementById('inv_date').value;
         var customer_id = document.getElementById('customer').value;
@@ -219,6 +261,12 @@
             inv_id:inv_id
           },
           success: function(data){
+            console.log(data);
+
+            $('#receipt_data').empty();
+            $('#receipt_data').append(data.reciept);
+            document.getElementById('print_receipt').style.display = "";
+            document.getElementById('pos_container').style.display = "none";
             document.getElementById('confirm_btn').style.display = "none";
             document.getElementById('basic').style.display = "";
             $('#print_area').printThis({
@@ -233,6 +281,7 @@
     }
      $(document).ready(function(){ 
       get_sale_product();
+      $('#barcode').focus();
      });
      $('#customer').change(function (e) { 
                 e.preventDefault();
@@ -320,7 +369,7 @@
             document.getElementById('product_counter').value = cart_items;
             $('#sub_total').append(total_sale.toLocaleString("en-US")+" PKR")
       close_box();
-      $('#product_search').select2('open');
+      //$('#product_search').select2('open');
 
           },
           error: function(response){
@@ -392,7 +441,7 @@
                             }
                             else
                             {
-                              $('#product_search').select2('open');
+                              //$('#product_search').select2('open');
                               close_box();
                             }
                             

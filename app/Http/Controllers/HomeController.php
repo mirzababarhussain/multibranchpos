@@ -12,6 +12,7 @@ use App\Models\Invaccounts;
 use App\Models\Ledger;
 use App\Models\Prices;
 use Illuminate\Support\Facades\DB;
+use Milon\Barcode\DNS1D;
 
 class HomeController extends Controller
 {
@@ -65,6 +66,63 @@ class HomeController extends Controller
         ->first();
         return view('saleview',compact('data'));
     }
+    public function create_sale_list(Request $request){
+
+        $id = $request->barcode;
+        $product = DB::table('branch_stocks')
+        ->join('prices','branch_stocks.product_id','=','prices.product_id')
+        ->where('branch_stocks.id',$id)
+        ->orWhere('branch_stocks.external_barcode',$id)
+        ->select('branch_stocks.*','prices.sale_price')
+        ->first();
+        if(!$product){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No Product found..'
+            ]);
+        }
+
+       
+ 
+        $check_already = BranchSaleDetail::where(
+         'inv_id',$request->inv_id,
+        )->where('product_id',$product->product_id)
+        ->where('unit',$product->unit)
+        ->where('size',$product->size)
+        ->first();
+ 
+        $new_stock = 0;
+        
+        if($check_already)
+        
+        {
+        
+         $new_stock = 1 + $check_already->sale_qty;
+         BranchSaleDetail::where('id',$check_already->id)->update([
+             'sale_qty' => $new_stock,
+             'sub_total' => $product->sale_price * $new_stock
+         ]);
+        
+         }
+        else
+        {
+      
+             BranchSaleDetail::create([
+                 'inv_id' => $request->inv_id,
+                 'product_id' => $product->product_id,
+                 'unit' => $product->unit,
+                 'size' => $product->size,
+                 'sale_price' => $product->sale_price,
+                 'sale_qty' => 1,
+                 'sub_total' => $product->sale_price * 1
+             ]);
+         }
+        return response()->json([
+            'status' => 'success',
+             'message' => $product
+        ]);
+ 
+     }
     public function add_product_sale(Request $request){
 
        $id = $request->id;
@@ -139,12 +197,29 @@ class HomeController extends Controller
     }
     public function confirm_sale_inv(Request $request)
     {
-
+        $customerdata = Customer::where('id',$request->cust_id)->first();
         /** get sale detail */
         $sale_details = BranchSaleDetail::where('inv_id',$request->inv_id)
         ->get();
         $branch_balance = 0;
         $total_profit = 0;
+
+        $receipt = " <div class='date_time_con'>
+<div class='date'>".$request->inv_id."</div>
+<div class='date'>".$request->inv_date."</div>
+  <div class='time'>".date('h:i:s')."</div>
+</div>
+
+<div class='items'>
+  <table>
+
+      <thead>
+          <th>QTY</th>
+          <th>ITEM</th>
+          <th>AMT</th>
+      </thead>
+
+      <tbody>";
         foreach($sale_details as $sale_detail)
         {
 
@@ -198,6 +273,12 @@ class HomeController extends Controller
                 
 
                 $branch_balance = $branch_balance + $sale_detail->sub_total;
+                $product = Product::where('id',$sale_detail->product_id)->first();
+                $receipt .= "<tr>
+                <td>".$sale_detail->sale_qty."X".$sale_detail->sale_price."</td>
+                <td>".$product->product_name." ".$sale_detail->size."".$sale_detail->unit."</td>
+                <td>".$sale_detail->sub_total."</td>
+            </tr>";
           
         }
             /** ledger entry to Branch cash sale */
@@ -234,8 +315,57 @@ class HomeController extends Controller
                 'customer_profit' => $total_profit
             ]);
 
+
+     
+
+        
+      $receipt .="</tbody>
+
+      <tfoot>
+          <tr>
+              <td>Total</td>
+              <td></td>
+              <td>". $branch_balance."</td>
+          </tr>
+          <tr>
+            <th colspan='3'>".$customerdata->customer_code." ".$customerdata->name."</th>
+          </tr>
+
+          
+      </tfoot>
+
+  </table>";
             return response()->json([
-                'message' => 'ok'
+                'message' => 'ok',
+                'reciept' => $receipt
             ]);
+    }
+
+
+    public function print_label(){
+
+        $products = Product::where('disable',0)->get();
+        return view('products.printlabel',compact('products'));
+    }
+    public function get_print_label(Request $request){
+
+        $label = DB::table('branch_stocks')
+        ->join('products','branch_stocks.product_id','=','products.id')
+        ->where('branch_stocks.id',$request->id)
+        ->select('branch_stocks.*', 'products.product_code','products.product_name')
+        ->first();
+
+        $sale_price = Prices::where('product_id',$label->product_id)
+        ->where('unit',$label->unit)
+        ->where('size',$label->size)
+        ->first();
+        
+        $barcode = DNS1D::getBarcodeSVG("$label->internal_barcode", 'C128',1,35,'black', false);
+        
+        return response()->json([
+            'label' => $label,
+            'barcode' => $barcode,
+            'price' => $sale_price->sale_price
+        ]);
     }
 }

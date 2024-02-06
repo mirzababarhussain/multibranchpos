@@ -14,6 +14,7 @@ use App\Http\Controllers\BranchStockInvoiceDetailController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\BranchSaleReturnMasterController;
+use App\Http\Controllers\PricesController;
 use App\Http\Controllers\ReportsController;
 /*
 |--------------------------------------------------------------------------
@@ -31,6 +32,13 @@ Route::get('/', function () {
 });
 
 Auth::routes();
+
+/*** Barcode & POS */
+
+Route::get('/barcode/verify/{id}',[PricesController::class,'verify_barcode'])->name('barcode.verify');
+Route::post('/barcode/create_sale_list',[HomeController::class,'create_sale_list'])->name('barcode.create_sale_list');
+Route::get('/barcode/print_label',[HomeController::class,'print_label'])->name('barcode.print_label');
+Route::post('/barcode/get_print_label',[HomeController::class,'get_print_label'])->name('barcode.get_print_label');
 
 /*** Sale */
 Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -84,6 +92,7 @@ Route::get('/purchases/show/{id}',[PurchaseController::class,'show'])->name('pur
 Route::get('/stock',[StockController::class,'index'])->name('stock');
 Route::post('/stock/stock_by_branch',[StockController::class,'show'])->name('stock.show');
 Route::get('/stock/branch_stock/{id}',[StockController::class,'branch_stock'])->name('stock.branch_stock');
+Route::post('/stock/get_stock_by_product',[StockController::class,'get_stock_by_product'])->name('stock.get_stock_by_product');
 
 /*** Vendors */
 

@@ -90,6 +90,27 @@
     <p><br><br><br></p>
     
   </div>
-
+  <script>
+    function confirm_purchase(id,status){
+     
+      let url = '{{ route("stock_invoice.confirm_status") }}';
+      $.ajax({
+        url:url,
+        type: 'POST',
+        data:{
+          id:id,
+          status:status,
+          vendor_id:{{ $master->branch_id }},
+          pur_date:{{ $master->stock_inv_date }}
+        },
+        success: function(data){
+          window.location = "{{ url('stock_invoice') }}";
+        },
+        error: function(response){
+          console.log(reponse);
+        }
+      })
+    }
+    </script>
     
 @endsection

@@ -35,14 +35,14 @@
             </div>
             <div class="card-body">
 
-              <form method="POST" action="{{ route('products.store') }}">
+              <form method="POST" action="{{ route('products.store') }}" id="myform">
                 @csrf
                 <div class="row">
                 <div class="row mt-4"><h4>Product's Basic detail پروڈکٹ کی بنیادی تفصیلات</h4></div>
 
                   <div class="col-sm-12 mt-2">
                     <label>Category مصنوعات کے زمرے کا انتخاب کریں۔ <small class="text text-danger">*</small></label>
-                    <select class="select2 form-control" required name="category">
+                    <select class="select2 form-control"  name="category" required>
                         <option value="">---Select---</option>
                         @foreach ($categories as $category)
                             <option value="{{ $category->id }}">{{ $category->cate_name }}</option>
@@ -51,11 +51,11 @@
                   </div>
                   <div class="col-sm-12 mt-3">
                       <label>Enter Product Name پروڈکٹ کا نام درج کریں۔ <small class="text text-danger">*</small></label>
-                      <input type="text" name="product_name" class="form-control" required placeholder="enter product name">
+                      <input type="text" name="product_name" required class="form-control"  placeholder="enter product name">
                   </div>
                   <div class="col-sm-12 mt-3">
                     <label>Enter Product Description پروڈکٹ کی تفصیل درج کریں۔</label>
-                    <textarea name="product_desc" class="form-control" placeholder="enter product description"></textarea>
+                    <textarea name="product_desc"  class="form-control" placeholder="enter product description"></textarea>
                 </div>
                 </div>
                 <div class="row mt-4"><h4>Sizes & Prices پروڈکٹ کا سائز اور قیمتوں کی تفصیلات</h4></div>
@@ -89,9 +89,13 @@
               <label>Stock   اوپننگ اسٹاک </label>
               <input type="number" name="stock[]" class="form-control" required>
           </div>
+          <div class="col-sm-12">
+            <input type="text" name="barcode[]" onchange="stop_form(this.value)" placeholder="Enter Barcode if any" class="form-control mt-2">
+          </div>
               </div>
-              <a href="javascript:add_row()">Add More</a>
-                <button type="submit" name="btn_Save" class="btn btn-shadow btn-success mt-4 float-end">Save Product پروڈکٹ کو محفوظ کریں۔</button>
+              <a href="javascript:add_row()" class="btn btn-danger mt-2">Add More</a>
+              <button type="button" onclick="complete_scanning()" class="btn btn-shadow  btn-info mt-4 float-end ">Scanning Completed</button>  
+              <button type="submit" disabled style="display: none" id="btn_save" name="btn_Save" class="mr-5 btn btn-shadow btn-success mt-4 float-end">Save Product پروڈکٹ کو محفوظ کریں۔</button>
               </form>
               
             </div>
@@ -102,10 +106,55 @@
     
   </div>
 <script>
+   $(document).ready(function(){ 
+      get_sale_product();
+      
+     });
+
+     function verify_barcode(barcode){
+        
+     }
+
+     function complete_scanning(){
+      document.getElementById('btn_save').style.display = "";
+      document.getElementById('btn_save').disabled  = false;
+     }
+
+     function stop_form(barcode){
+      var id = barcode;
+        let a = "{{ route('barcode.verify','id') }}";
+        var url = a.replace('id',id);
+        $.ajax({
+          url:url,
+          type:'GET',
+          data:{},
+          success: function(data){
+            if(data.result == 0){
+
+              document.getElementById('btn_save').style.display = "";
+              
+            }
+            else
+            {
+              alert("Barcode already exists");
+              var focusedElement = document.activeElement;
+              focusedElement.value = "";
+              focusedElement.focus();
+              document.getElementById('btn_save').style.display = "none";
+              
+            }
+          }
+        })
+      
+     
+     }
+  
       function add_row(){
          // var getrow = document.getElementById('dyn_row');
-          $("#dyn_row").append('<div class="row mt-2"><div class="col-sm-2 mt-2"> <label>Unit یونٹ</label> <select name="unit[]" class="form-control" required> <option value="">Select</option> @foreach ($units as $unit) <option value="{{ $unit->unit }}">{{ $unit->unit }}</option> @endforeach </select> </div> <div class="col-sm-2"> <label>Size مقدار/سائز</label> <input type="number" name="qty[]" class="form-control" required> </div> <div class="col-sm-2"> <label>Pur Price قیمت خرید</label> <input type="number" name="pur_price[]" class="form-control" required> </div> <div class="col-sm-2"> <label>Sale Price  قیمت فروخت</label> <input type="number" name="sale_price[]" class="form-control" required> </div> <div class="col-sm-2"> <label>گاہک کا منافع روپے میں</label> <input type="number" name="disc[]" class="form-control" required> </div><div class="col-sm-2"> <label>Stock   اوپننگ اسٹاک </label> <input type="number" name="stock[]" class="form-control" required><a href="#" class="text text-danger float-end remove_price_line">X</a></div></div>');
+          $("#dyn_row").append('<div class="row mt-2"><div class="col-sm-2 mt-2"> <label>Unit یونٹ</label> <select name="unit[]" class="form-control" required> <option value="">Select</option> @foreach ($units as $unit) <option value="{{ $unit->unit }}">{{ $unit->unit }}</option> @endforeach </select> </div> <div class="col-sm-2"> <label>Size مقدار/سائز</label> <input type="number" name="qty[]" class="form-control" required> </div> <div class="col-sm-2"> <label>Pur Price قیمت خرید</label> <input type="number" name="pur_price[]" class="form-control" required> </div> <div class="col-sm-2"> <label>Sale Price  قیمت فروخت</label> <input type="number" name="sale_price[]" class="form-control" required> </div> <div class="col-sm-2"> <label>گاہک کا منافع روپے میں</label> <input type="number" name="disc[]" class="form-control" required> </div><div class="col-sm-2"> <label>Stock   اوپننگ اسٹاک </label> <input type="number" name="stock[]" class="form-control" required><a href="#" class="text text-danger float-end remove_price_line">X</a></div><div class="col-sm-12"> <input type="text" name="barcode[]" placeholder="Enter Barcode if any" class="form-control mt-2" onchange="return stop_form(this.value)"> </div></div>');
           $('select').select2();
+          document.getElementById('btn_save').disabled  = true;
+          document.getElementById('btn_save').style.display = "none";
         }
       $('.deen').on('click', '.remove_price_line', function(e) {
     e.preventDefault();

@@ -342,6 +342,16 @@
                 <span class="pc-mtext">Customers</span>
               </a>
           </li>
+          <li class="pc-item">
+            <a href="{{ route('barcode.print_label') }}" class="pc-link">
+              <span class="pc-micon">
+                <svg class="pc-icon">
+                  <use xlink:href="#custom-story"></use>
+                </svg>
+              </span>
+              <span class="pc-mtext">Print Label</span>
+            </a>
+        </li>
            
           <li class="pc-item pc-hasmenu">
             <a href="#!" class="pc-link">
@@ -430,12 +440,18 @@
     </div>
     <!-- [Mobile Media Block end] -->
     <div class="ms-auto">
+      @if(auth()->user()->branch_id > 0)
+        
+     
       <div class="btn-group" role="group" aria-label="Basic example">
         <a href="{{ route('home') }}" class="btn btn-shadow btn-primary"><i class="fas fa-file-invoice"></i> New Sale</a>
         <a href="{{ route('home.get_sale_ivoices') }}" class="btn btn-primary btn-shadow"><i class="fas fa-search"></i> Search Sale</a>
         <a href="{{ route('customers.create') }}" class="btn btn-primary btn-shadow"><i class="fas fa-user-plus"></i> New Customer</a>
         <a href="{{ route('customers') }}" class="btn btn-primary btn-shadow"><i class="fas fa-users"></i> Find Customer</a>
       </div>
+      @else
+        
+      @endif
       <ul class="list-unstyled">
         <li class="dropdown pc-h-item">
           <a

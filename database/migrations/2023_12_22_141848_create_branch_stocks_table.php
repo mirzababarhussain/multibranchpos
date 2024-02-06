@@ -20,6 +20,8 @@ return new class extends Migration
             $table->integer('stock')->default(0);
             $table->longText('custom_sale_price')->nullable();
             $table->longText('custom_profile')->nullable();
+            $table->longText('internal_barcode')->nullable();
+            $table->longText('external_barcode')->nullable();
             $table->timestamps();
         });
     }

@@ -27,6 +27,18 @@
                 <div class="row align-items-center bg bg-light p-3">
                   {{ $selected_branch->branch_name }} {{ $selected_branch->branch_address }}
                 </div>
+                <div class="float-end">
+                  <form method="POST" action="{{ route('stock.get_stock_by_product') }}">
+                  @csrf
+                  <select class="form-control" required name="product_id">
+                    <option value="">---Select Product---</option>
+                    @foreach ($products as $product)
+                    <option value="{{ $product->id }}">{{ $product->product_code }}-{{ $product->product_name }}</option>
+                    @endforeach
+                  </select>
+                  <button type="submit" class="btn btn-shadow btn-primary">Search</button>
+                </form>
+                </div>
               </div>
             </div>
             <div class="card-body">
@@ -44,6 +56,7 @@
                   <tbody class="bg bg-white">
                     @php
                       use App\Http\Controllers\StockController;
+                      use \Milon\Barcode\DNS1D;
                       $index = 1;
                     @endphp
                     @foreach ($products as $product)
@@ -58,8 +71,12 @@
                       <td>
                         @foreach ($stocks as $stock)
                           <div class="row">
-                            <div class="col-sm-6">{{ $stock->size }} {{ $stock->unit }}</div>
-                            <div class="col-sm-6">{{ $stock->stock }}</div>
+                            <div class="col-sm-3">{{ $stock->size }} {{ $stock->unit }}</div>
+                            <div class="col-sm-3">{{ $stock->stock }}</div>
+                            
+                            <div class="col-sm-6">{!! DNS1D::getBarcodeHTML("$stock->internal_barcode", 'UPCA'); !!}
+                              <small>{{ $stock->external_barcode }}</small>
+                            </div>
                             
                           </div>
                         @endforeach
