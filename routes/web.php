@@ -139,6 +139,7 @@ Route::get('/getsaleprices/{id}',[ProductController::class,'getsaleprices'])->na
 Route::get('/journal/payments',[LedgerController::class,'index'])->name('ledger.payments');
 Route::get('/journal/payments/create/{id}',[LedgerController::class,'create'])->name('ledger.create');
 Route::post('/journal/payments/pay_to_vendor',[LedgerController::class,'pay_to_vendor'])->name('ledger.pay_to_vendor');
+Route::post('/journal/payments/pay_to_customer',[LedgerController::class,'pay_to_customer'])->name('ledger.pay_to_customer');
 Route::post('/journal/payments/branch_to_bank',[LedgerController::class,'branch_to_bank'])->name('ledger.branch_to_bank');
 Route::post('/journal/payments/bank_to_bank',[LedgerController::class,'bank_to_bank'])->name('ledger.bank_to_bank');
 Route::post('/journal/payments/branch_to_mainstore',[LedgerController::class,'branch_to_mainstore'])->name('ledger.branch_to_mainstore');
@@ -174,6 +175,7 @@ Route::post('/stock_invoice/confirm_stock_receving',[BranchStockInvoiceDetailCon
 Route::get('/customers',[CustomerController::class,'index'])->name('customers');
 Route::get('/customers/create',[CustomerController::class,'create'])->name('customers.create');
 Route::get('/customers/show/{id}',[CustomerController::class,'show'])->name('customers.show');
+Route::get('/customers/show_json/{id}',[CustomerController::class,'show_json'])->name('customers.show_json');
 Route::post('/customers/store',[CustomerController::class,'store'])->name('customers.store');
 Route::post('/customers/delete',[CustomerController::class,'destroy'])->name('customers.delete');
 Route::post('/customers/restore',[CustomerController::class,'restore'])->name('customers.restore');
@@ -191,3 +193,5 @@ Route::get('/reports/purchase_report',[ReportsController::class,'purchase_report
 Route::post('/reports/get_purchase_report',[ReportsController::class,'get_purchase_report'])->name('reports.get_purchase_report');
 Route::get('/reports/customer_report',[ReportsController::class,'customer_report'])->name('reports.customer_report');
 Route::post('/reports/get_customer_report',[ReportsController::class,'get_customer_report'])->name('reports.get_customer_report');
+Route::get('/reports/vendor_report',[ReportsController::class,'vendor_report'])->name('reports.vendor_report');
+Route::post('/reports/get_vendor_report',[ReportsController::class,'get_vendor_report'])->name('reports.get_vendor_report');

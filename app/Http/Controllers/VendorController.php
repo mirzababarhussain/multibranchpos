@@ -43,7 +43,7 @@ class VendorController extends Controller
         ]);
 
         $vendor = Vendor::create([
-            'v_code' => Str::random(5),
+            'v_code' => rand(4000,15000).time(),
             'v_name' => $request->v_name,
             'v_phone' => $request->v_phone,
             'v_email' => $request->v_email,

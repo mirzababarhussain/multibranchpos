@@ -181,7 +181,7 @@ class ReportsController extends Controller
 
         $datas = DB::table('purchasemasters')
         ->join('vendors','purchasemasters.vendor_id','=','vendors.id')
-        ->whereBetween('pur_date',[$start_date,$end_date])
+        ->whereBetween('purchasemasters.pur_date',[$start_date,$end_date])
         ->select('purchasemasters.*','vendors.*')
         ->get();
         
@@ -192,7 +192,7 @@ class ReportsController extends Controller
         $vendor = $vendordata->v_code."-".$vendordata->v_name."-".$vendordata->v_address;
         $datas = DB::table('purchasemasters')
         ->join('vendors','purchasemasters.vendor_id','=','vendors.id')
-        ->whereBetween('pur_date',[$start_date,$end_date])
+        ->whereBetween('purchasemasters.pur_date',[$start_date,$end_date])
         ->where('vendors.id',$request->selected_vendor)
         ->select('purchasemasters.*','vendors.*')
         ->get();
@@ -208,4 +208,78 @@ class ReportsController extends Controller
         $customers = Customer::all();
         return view('reports.customer_statement',compact('customers'));
     }
+
+    public function get_customer_report(Request $request){
+        DB::enableQueryLog();
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+        $report_heading = "Customer Statement ".$start_date.' and '.$end_date;
+        $customer = "All Customers";
+        if($request->selected_customer == 0){
+
+        $datas = DB::table('ledgers')
+        ->join('customers','ledgers.account_id','=','customers.id')
+        ->whereIn('ledgers.account_type',['customer_sale_profit','customer_investment','customer'])
+        ->whereBetween('ledgers.paid_date',[$start_date,$end_date])
+        ->select('ledgers.*','customers.*')->get();
+        
+        }
+        else
+        {
+        $customerdata = Customer::where('id',$request->selected_customer)->first();
+        $customer = $customerdata->customer_code."-".$customerdata->name."-".$customerdata->address;
+        $datas = DB::table('ledgers')
+        ->join('customers','ledgers.account_id','=','customers.id')
+        ->where('ledgers.account_id','=',$request->selected_customer)
+        ->whereIn('ledgers.account_type',['customer_sale_profit','customer_investment','customer'])
+        ->whereBetween('ledgers.paid_date',[$start_date,$end_date])
+        ->select('ledgers.*','customers.*')
+        ->get();
+        }
+        
+        $customers = Customer::all();
+        return view('reports.customer_statement',compact('customers','datas','customer','report_heading'));
+
+    }
+
+    public function vendor_report(){
+
+        $vendors = Vendor::all();
+        return view('reports.vendor',compact('vendors'));
+    }
+
+    public function get_vendor_report(Request $request){
+
+        $start_date = $request->start_date;
+        $end_date = $request->end_date;
+        $report_heading = "Vendor Report ".$start_date.' and '.$end_date;
+        $vendor = "All Vendors";
+        if($request->selected_vendor == 0){
+
+        $datas = DB::table('ledgers')
+        ->join('vendors','ledgers.account_id','=','vendors.id')
+        ->where('ledgers.account_type','vendor')
+        ->whereBetween('ledgers.paid_date',[$start_date,$end_date])
+        ->select('ledgers.*','vendors.*')
+        ->get();
+        
+        }
+        else
+        {
+        $vendordata = Vendor::where('id',$request->selected_vendor)->first();
+        $vendor = $vendordata->v_code."-".$vendordata->v_name."-".$vendordata->v_address;
+        $datas = DB::table('ledgers')
+        ->join('vendors','ledgers.account_id','=','vendors.id')
+        ->where('ledgers.account_type','=','vendor')
+        ->where('ledgers.account_id',$request->vendordata)
+        ->whereBetween('ledgers.paid_date',[$start_date,$end_date])
+        ->select('ledgers.*','vendors.*')
+        ->get();
+        }
+        $vendors = Vendor::all();
+        return view('reports.vendor',compact('vendors','datas','vendor','report_heading'));
+
+    }
+
+
 }

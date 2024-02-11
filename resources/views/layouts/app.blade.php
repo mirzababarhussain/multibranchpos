@@ -124,13 +124,13 @@
     </div>
     <!-- [ Pre-loader ] End -->
      <!-- [ Sidebar Menu ] start -->
-    <nav class="pc-sidebar {{ auth()->user()->branch_id > 0 ? 'pc-sidebar-hide' : '' }}" style="background-color: #eef9ff">
+    <nav class="pc-sidebar {{ auth()->user()->branch_id > 0 ? 'pc-sidebar-hide' : '' }}" style="background-color: #fff">
       <div class="navbar-wrapper">
         <div class="m-header">
           <a href="#" class="b-brand text-primary">
             <!-- ========   Change your logo from here   ============ -->
-            <img src="{{ asset('assets/images/logo-dark.svg')}}" />
-            <span class="badge bg-light-success rounded-pill ms-2 theme-version">v9.0</span>
+            <img src="{{ asset('assets/images/logo.png')}}" class="img-fluid w-50 mt-1" />
+            <span class="badge bg-light-success rounded-pill ms-2 theme-version">v 1.0</span>
           </a>
         </div>
         <div class="navbar-content">
@@ -141,8 +141,8 @@
                   <img src="{{ asset('assets/images/user/avatar-1.jpg')}}" alt="user-image" class="user-avtar wid-45 rounded-circle" />
                 </div>
                 <div class="flex-grow-1 ms-3 me-2">
-                  <h6 class="mb-0">Jonh Smith</h6>
-                  <small>Administrator</small>
+                  <h6 class="mb-0">{{ auth()->user()->name }}</h6>
+                  <small>{{ auth()->user()->branch_id == 0 ? 'Administrator' : 'Branch USer' }}</small>
                 </div>
                 <a class="btn btn-icon btn-link-secondary avtar" data-bs-toggle="collapse" href="#pc_sidebar_userlink">
                   <svg class="pc-icon">
@@ -152,18 +152,7 @@
               </div>
               <div class="collapse pc-user-links" id="pc_sidebar_userlink">
                 <div class="pt-3">
-                  <a href="#!">
-                    <i class="ti ti-user"></i>
-                    <span>My Account</span>
-                  </a>
-                  <a href="#!">
-                    <i class="ti ti-settings"></i>
-                    <span>Settings</span>
-                  </a>
-                  <a href="#!">
-                    <i class="ti ti-lock"></i>
-                    <span>Lock Screen</span>
-                  </a>
+                 
                   <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <i class="ti ti-power"></i>
                     <span>
@@ -309,6 +298,16 @@
           </a>
       </li>
       <li class="pc-item">
+        <a href="{{ route('barcode.print_label') }}" class="pc-link">
+          <span class="pc-micon">
+            <svg class="pc-icon">
+              <use xlink:href="#custom-story"></use>
+            </svg>
+          </span>
+          <span class="pc-mtext">Print Label</span>
+        </a>
+    </li>
+      <li class="pc-item">
         <a href="{{ route('stock_invoice.index') }}" class="pc-link">
           <span class="pc-micon">
             <svg class="pc-icon">
@@ -342,16 +341,7 @@
                 <span class="pc-mtext">Customers</span>
               </a>
           </li>
-          <li class="pc-item">
-            <a href="{{ route('barcode.print_label') }}" class="pc-link">
-              <span class="pc-micon">
-                <svg class="pc-icon">
-                  <use xlink:href="#custom-story"></use>
-                </svg>
-              </span>
-              <span class="pc-mtext">Print Label</span>
-            </a>
-        </li>
+          
            
           <li class="pc-item pc-hasmenu">
             <a href="#!" class="pc-link">
@@ -362,13 +352,17 @@
               </span>
               <span class="pc-mtext">Reports</span><span class="pc-arrow"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-right"><polyline points="9 18 15 12 9 6"></polyline></svg></span></a>
             <ul class="pc-submenu" style="display: none;">
+              @if(auth()->user()->branch_id == 0)
+                
               <li class="pc-item"><a class="pc-link" href="{{ route('reports.payment_report') }}">Branch Payment</a></li>
+              <li class="pc-item"><a class="pc-link" href="{{ route('reports.purchase_report') }}">Purchase</a></li>
+              <li class="pc-item"><a class="pc-link" href="{{ route('reports.vendor_report') }}">Vendor Statement</a></li>
+              @else
+              
               <li class="pc-item"><a class="pc-link" href="{{ route('reports.sale_report') }}">Sale</a></li>
               <li class="pc-item"><a class="pc-link" href="{{ route('reports.sale_return_report') }}">Sale Return</a></li>
-              <li class="pc-item"><a class="pc-link" href="{{ route('reports.purchase_report') }}">Purchase</a></li>
+              @endif
               <li class="pc-item"><a class="pc-link" href="{{ route('reports.customer_report') }}">Customer Statement</a></li>
-              <li class="pc-item"><a class="pc-link" href="../table/dt_sources.html">Vendor Statement</a></li>
-              <li class="pc-item"><a class="pc-link" href="../table/dt_sources.html">Stock Issuance</a></li>
             </ul>
           </li>
     
@@ -383,7 +377,11 @@
     <div class="me-auto pc-mob-drp">
       <ul class="list-unstyled">
         <!-- ======= Menu collapse Icon ===== -->
+        @if(auth()->user()->branch_id > 0)
+            
+       
         <li class="pc-h-item pc-sidebar-collapse">
+         
           <a href="#" class="pc-head-link ms-0" id="sidebar-hide">
             <i class="ti ti-menu-2" style="color:#ffef9e"></i>
           </a>
@@ -393,6 +391,9 @@
             <i class="ti ti-menu-2"></i>
           </a>
         </li>
+        @else
+          
+        @endif
         <li class="dropdown pc-h-item">
           <a
             class="pc-head-link dropdown-toggle arrow-none m-0 trig-drp-search"
@@ -455,37 +456,13 @@
       <ul class="list-unstyled">
         <li class="dropdown pc-h-item">
           <a
-            class="pc-head-link dropdown-toggle arrow-none me-0"
-            data-bs-toggle="dropdown"
-            href="#"
-            role="button"
-            aria-haspopup="false"
-            aria-expanded="false"
+           
+            href="{{ route('home') }}"
+          
           >
-            <svg class="pc-icon">
-              <use xlink:href="#custom-sun-1"></use>
-            </svg>
+            <i class="fas fa-tachometer-alt text text-warning"></i>
           </a>
-          <div class="dropdown-menu dropdown-menu-end pc-h-dropdown">
-            <a href="#!" class="dropdown-item" onclick="layout_change('dark')">
-              <svg class="pc-icon">
-                <use xlink:href="#custom-moon"></use>
-              </svg>
-              <span>Dark</span>
-            </a>
-            <a href="#!" class="dropdown-item" onclick="layout_change('light')">
-              <svg class="pc-icon">
-                <use xlink:href="#custom-sun-1"></use>
-              </svg>
-              <span>Light</span>
-            </a>
-            <a href="#!" class="dropdown-item" onclick="layout_change_default()">
-              <svg class="pc-icon">
-                <use xlink:href="#custom-setting-2"></use>
-              </svg>
-              <span>Default</span>
-            </a>
-          </div>
+          
         </li>
         
         
@@ -733,9 +710,7 @@
             <div class="footer-wrapper container-fluid">
               <div class="row">
                 <div class="col my-1">
-                  <p class="m-0"
-                    >Crafted by Team <a href="https://capraeye.com" target="_blank">Capraeye Solutions</a></p
-                  >
+                  <p class="m-0">Crafted by <a href="#" target="_blank">Babar Hussain Mughal</a> | 0300-6909242 | mirzababarhussain@gmail.com</p>
                 </div>
                 <div class="col-auto my-1">
                  

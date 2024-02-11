@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\banks;
 use App\Models\Branches;
+use App\Models\Customer;
 use App\Models\Invaccounts;
 use App\Models\Ledger;
 use Illuminate\Http\Request;
@@ -85,6 +86,10 @@ class LedgerController extends Controller
         if($id == 5){
             $banks = banks::where('disable',0)->get();
             return view('ledger.mainstore_to_bank',compact('banks'));
+        }
+        if($id == 6){
+            $customers = Customer::where('disable',0)->get();
+            return view('ledger.paytocustomer',compact('customers'));
         }
     }
     public function sale_json(){
@@ -314,6 +319,65 @@ class LedgerController extends Controller
         ]);
         // Ledger Entry 1
         $this->ledger($payment_to,'vendor',$paid_desc.$pay_refer,$paid_amount,0,$vendor_balance,$paid_date);
+        //Ledger entry 2
+        $this->ledger($sub_paymnet_from,$type,$paid_desc.$to_refer,0,$paid_amount,$paid_acc_balance,$paid_date);
+   }
+   
+
+    return response()->json([
+        'message' => $message
+    ],200);
+   }
+
+
+   public function pay_to_customer(Request $request){
+    $from_main_account = $request->payment_from;
+    $sub_paymnet_from = $request->sub_paymnet_from;
+    $payment_to = $request->payment_to;
+    $paid_date = $request->paid_date;
+    $paid_amount = $request->paid_amount;
+    $paid_desc = $request->paid_desc;
+    $payment_for = $request->payment_for;
+    $type = '';
+    // vendor
+    $vendor = Invaccounts::where('account_id',$payment_to)->where('account_type',$payment_for)->first();
+   
+  
+    $message = 'ok';
+    if($from_main_account == 1){
+        // banks
+        $Paid_from = Invaccounts::where('account_id',$sub_paymnet_from)->where('account_type','bank')->first();
+     
+        $type = 'bank';
+    }
+    if($from_main_account == 2){
+        // sale account
+        $Paid_from = Invaccounts::where('account_id',0)->where('account_type','sale')->first();
+        
+        $type = 'sale';
+    }
+    if($paid_amount > $Paid_from->balance){
+        $message = 'insufficient balance from paying "'.$type.'"  account';
+    }
+    if($paid_amount > $vendor->balance){
+        $message = 'Paid amount is greater than Customer Balance';
+    }
+    $pay_refer = ' '.$type.'#'.$sub_paymnet_from;
+    $to_refer = ' customer#'.$payment_to;
+   if($message == 'ok')
+   {
+        $vendor_balance = $vendor->balance - $paid_amount;
+        $paid_acc_balance = $Paid_from->balance - $paid_amount;
+        // Update vendor Balance
+        Invaccounts::where('account_id',$payment_to)->where('account_type',$payment_for)->update([
+        'balance' => $vendor_balance
+        ]);
+    // Update paid from account balance
+        Invaccounts::where('account_id',$sub_paymnet_from)->where('account_type',$type)->update([
+        'balance' => $paid_acc_balance
+        ]);
+        // Ledger Entry 1
+        $this->ledger($payment_to,'customer',$paid_desc.$pay_refer,$paid_amount,0,$vendor_balance,$paid_date);
         //Ledger entry 2
         $this->ledger($sub_paymnet_from,$type,$paid_desc.$to_refer,0,$paid_amount,$paid_acc_balance,$paid_date);
    }

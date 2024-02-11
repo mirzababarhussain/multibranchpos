@@ -7,7 +7,7 @@
       <div class="page-block">
         <div class="row align-items-center">
           <div class="col-md-12">
-            <h4 class="mb-0">Customer Finanical Statement    گاہک کے فنانس </h4>
+            <h4 class="mb-0">Vendor's Report      وینڈر کی رپورٹ </h4>
           </div>
           
         </div>
@@ -26,17 +26,17 @@
                   <div class="col-sm-5">
                     <div class="card shadow">
                       <div class="card-header">
-                        <h5>Customer's Statement</h5>
+                        <h5>Vendor's Statement</h5>
                       </div>
-                      <form method="POST" action="{{ route('reports.get_customer_report') }}">
+                      <form method="POST" action="{{ route('reports.get_vendor_report') }}">
                         @csrf
                       
                           <div class="card-body">
-                            <label>Customer</label>
-                            <select class="form-control" required name="selected_customer">
-                                <option value="0"> All Customers </option>
-                                @foreach ($customers as $customer)
-                                  <option value="{{ $customer->id }}">{{ $customer->customer_code }}-{{ $customer->name }}-{{ $customer->address }}</option>
+                            <label>Vendor</label>
+                            <select class="form-control" required name="selected_vendor">
+                                <option value="0"> All Vendors </option>
+                                @foreach ($vendors as $vendor)
+                                  <option value="{{ $vendor->id }}">{{ $vendor->v_code }}-{{ $vendor->v_name }}-{{ $vendor->v_address }}</option>
                                 @endforeach
                             </select>
                             <div class="input-daterange input-group" id="datepicker_range">
@@ -56,10 +56,10 @@
                 @else
                 <h5>{{ $report_heading }}
                   <button class="btn btn-danger float-end" id="basic"><i class="fas fa-print"></i> Print</button>
-                  <a href="{{ route('reports.customer_report') }}" class="btn btn-primary float-end mr-3"><i class="fas fa-backward"></i> Back</a>
+                  <a href="{{ route('reports.vendor_report') }}" class="btn btn-primary float-end mr-3"><i class="fas fa-backward"></i> Back</a>
                 
                 </h5>
-                <h5>{{ $customer }}</h5>
+                <h5>{{ $vendor }}</h5>
                 @endif
               </div>
             </div>
@@ -70,7 +70,7 @@
                     <tr>
                       <th style="background-color:#f0e2ae">Sr #<br>سیریل نمبر</th>
                       <th style="background-color:#f0e2ae">Trans-Date<br>      لین دین کی تاریخ</th>
-                      <th style="background-color:#f0e2ae">Customer<br>صارف</th>
+                      <th style="background-color:#f0e2ae">Vendor<br>صارف</th>
                       <th style="background-color:#f0e2ae">Trand-Detail</th>
                       <th style="background-color:#f0e2ae">Debit<br>ڈیبٹ</th>
                       <th style="background-color:#f0e2ae">Credit<br>کریڈٹ</th>
@@ -89,7 +89,7 @@
                       <tr>
                         <td>P-{{ $data->id }}</td>
                         <td>{{ $data->paid_date }}</td>
-                        <td>{{ $data->customer_code }}-{{ $data->name }}<small><br>{{ $data->address }}</small></td>
+                        <td>{{ $data->v_code }}-{{ $data->v_name }}<small><br>{{ $data->v_address }}</small></td>
                         <td>{{ $data->trans_detail }}</td>
                         <td>{{ number_format($data->debit) }}</td>
                         <td>{{ number_format($data->credit) }}</td>

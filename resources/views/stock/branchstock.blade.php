@@ -74,7 +74,7 @@
                             <div class="col-sm-3">{{ $stock->size }} {{ $stock->unit }}</div>
                             <div class="col-sm-3">{{ $stock->stock }}</div>
                             
-                            <div class="col-sm-6">{!! DNS1D::getBarcodeHTML("$stock->internal_barcode", 'UPCA'); !!}
+                            <div class="col-sm-6">{!! DNS1D::getBarcodeHTML("$stock->internal_barcode", 'UPCA') !!}
                               <small>{{ $stock->external_barcode }}</small>
                             </div>
                             

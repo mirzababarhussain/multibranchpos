@@ -41,7 +41,7 @@
                   Cash Sale to Bank
                 </a>
 
-                <a href="#" class="btn btn-shadow btn-danger">
+                <a href="{{ route('ledger.create',6) }}" class="btn btn-shadow btn-danger">
                   Pay Customer Profit
                 </a>
 
@@ -76,7 +76,10 @@
                     <td>{{ $index++ }}</td>
                     <td>{{ ($ledger->created_at)->format('d/m/Y') }}</td>
                     <td>{{ \Carbon\Carbon::parse($ledger->paid_date)->format('d/m/Y')}}</td>
-                    <td>{{ $ledger->account_type }} {{ LedgerController::account_detail($ledger->account_id,$ledger->account_type) }}</td>
+                    <td>
+                      {{ $ledger->account_type }} {{ LedgerController::account_detail($ledger->account_id,$ledger->account_type) }}
+                      <small><br>{{ $ledger->trans_detail }}</small>
+                    </td>
                     <td>{{ $ledger->debit }}</td>
                     <td>{{ $ledger->credit }}</td>
                     <td>{{ $ledger->balance }}</td>

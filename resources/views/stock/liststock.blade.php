@@ -80,7 +80,7 @@
                             <div class="col-sm-3">{{ $stock->size }} {{ $stock->unit }}</div>
                             <div class="col-sm-3">{{ $stock->stock }}</div>
                             
-                            <div class="col-sm-6">{!! DNS1D::getBarcodeSVG("$stock->internal_barcode", 'C128',1,35,'black', false); !!}
+                            <div class="col-sm-6">{!! DNS1D::getBarcodeSVG("$stock->internal_barcode", 'C128',1,35,'black', false) !!}
                               <small><br>{{ $stock->external_barcode }}</small>
                             </div>
                           </div>

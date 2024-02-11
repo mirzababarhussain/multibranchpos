@@ -189,7 +189,28 @@
                           <h5>Investment Statement</h5>
                         </div>
                         <div class="card-body">
-                          
+                          <table class="table">
+                            <thead>
+                                <tr>
+                                  <th>Date</th>
+                                  <td>Detail</td>
+                                  <th>Debit</th>
+                                  <th>Credit</th>
+                                  <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                              @foreach ($invest_profits as $invest_profit)
+                                  <tr>
+                                    <td>{{ $invest_profit->paid_date }}</td>
+                                    <td>{{ $invest_profit->trans_detail }}</td>
+                                    <td>{{ $invest_profit->debit }}</td>
+                                    <td>{{ $invest_profit->credit }}</td>
+                                    <td>{{ $invest_profit->balance }}</td>
+                                  </tr>
+                              @endforeach
+                            </tbody>
+                          </table>
                         </div>
                       </div>
                     </div>

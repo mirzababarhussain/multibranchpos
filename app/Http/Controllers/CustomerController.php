@@ -101,11 +101,80 @@ class CustomerController extends Controller
      */
     public function show($id)
     {
+        
         $customer = Customer::where('id',$id)->first();
         $investment = CustomerInvestment::where('customer_id',$id)->first();
-        $sale_profits = Ledger::where('account_type','customer_sale_profit')->where('account_id',$id)->get();
-        $invest_profits = Ledger::where('account_type','customer_investment')->where('account_id',$id)->get();
+        $sale_profits = Ledger::where('account_type','customer_sale_profit')->where('account_id',$id)->orderBy('id','desc')->get();
+        $invest_profits = Ledger::where('account_type','customer_investment')->where('account_id',$id)->orderBy('id','desc')->get();
+        $this->calculate_investment_profit($id,$investment->start_date,$investment->end_date,$investment->amount,$investment->profit_percentage);
+
         return view('customers.view',compact('customer','investment','sale_profits','invest_profits'));
+    }
+    public function calculate_investment_profit($customer_id,$req_start_date,$req_end_date,$total,$percentage){
+        $start_date = $req_start_date; // Start date
+        $end_date = $req_end_date; // End date
+
+// Get current month and year
+$current_month = date('n');
+$current_year = date('Y');
+
+// Loop through each month between start and end dates
+$start_month = date('n', strtotime($start_date));
+$start_year = date('Y', strtotime($start_date));
+
+$end_month = date('n', strtotime($end_date));
+$end_year = date('Y', strtotime($end_date));
+
+for ($year = $start_year; $year <= $end_year; $year++) {
+    $month_start = ($year == $start_year) ? $start_month : 1;
+    $month_end = ($year == $end_year) ? $end_month : 12;
+
+    for ($month = $month_start; $month <= $month_end; $month++) {
+        // Check if the month is not greater than the current month
+        if (($year < $current_year) || ($year == $current_year && $month <= $current_month)) {
+           $tDetail = 'Customer Monthly Profit for Month '.$end_month.'-'.$end_year;
+           $acdetail = 'Customer Monthly Profit for Month '.$month.'-'.$year;
+            $check = Ledger::where('account_id',$customer_id)
+            ->where('account_type','customer_investment')
+            ->where('trans_detail',$tDetail)->first();
+            if(!$check){
+
+            $balance = 0;
+            $amount = $total * ($percentage/100);
+           $account_data =  Invaccounts::where('account_type','customer_investment')->where('account_id',$customer_id)->first();
+           $balance = $account_data->balance + $amount;
+           
+           Invaccounts::where('account_type','customer_investment')->where('account_id',$customer_id)->update([
+            'balance'=> $balance
+           ]);
+           Ledger::create([
+                'account_id' => $customer_id,
+                'account_type' => 'customer_investment',
+                'paid_date' => date('Y-m-d'),
+                'trans_detail' => $acdetail,
+                'credit' => $amount,
+                'debit' => 0,
+                'balance' => $balance
+            ]);
+        }
+
+          
+        }
+    }
+}
+
+    }
+    public function show_json($id)
+    {
+        $customer = Customer::where('id',$id)->first();
+        $sale_profits = Invaccounts::where('account_type','customer_sale_profit')->where('account_id',$id)->first();
+        $invest_profits = Invaccounts::where('account_type','customer_investment')->where('account_id',$id)->first();
+        return response()->json([
+            'customer' => $customer,
+            'sale_profit' => $sale_profits,
+            'invest_profit' => $invest_profits
+
+        ]);
     }
 
     /**

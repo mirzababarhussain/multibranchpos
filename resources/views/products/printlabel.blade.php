@@ -102,6 +102,7 @@
     </div>
     
   </div>
+</div>
 
  <script>
   function print_label(){

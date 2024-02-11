@@ -51,7 +51,7 @@
         <div class="card my-5">
           <div class="card-body">
             <div class="text-center">
-              <a href="#"><img src="{{ asset('assets/images/logo-dark.svg')}}" alt="img"></a>
+              <a href="#"><img src="{{ asset('assets/images/logo.png')}}" alt="img" class="img-fluid w-50"></a>
               
             </div>
            

@@ -3,10 +3,10 @@
 @section('content')
 <div class="pc-content">
   @if(auth()->user()->branch_id == 0)
-    
+    @include('dashboard')
   @else
     
-  @include('receipt');
+  @include('receipt')
     <div class="row" id="pos_container">
       <!-- [ sample-page ] start -->
       <div class="col-sm-12">
