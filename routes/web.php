@@ -195,3 +195,4 @@ Route::get('/reports/customer_report',[ReportsController::class,'customer_report
 Route::post('/reports/get_customer_report',[ReportsController::class,'get_customer_report'])->name('reports.get_customer_report');
 Route::get('/reports/vendor_report',[ReportsController::class,'vendor_report'])->name('reports.vendor_report');
 Route::post('/reports/get_vendor_report',[ReportsController::class,'get_vendor_report'])->name('reports.get_vendor_report');
+Route::get('/reports/get_income',[ReportsController::class,'get_income'])->name('reports.get_income');

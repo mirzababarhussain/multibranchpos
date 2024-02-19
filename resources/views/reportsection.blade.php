@@ -79,11 +79,11 @@
         </a>
           </li>
           <li class="list-group-item">
-            <a href="">
+            <a href="{{ route('reports.get_income') }}">
             <div class="d-flex align-items-center">
               
               <div class="flex-grow-1 mx-2">
-                <p class="mb-1">Monthly Income</p>
+                <p class="mb-1">Monthly Income / Ledger</p>
                 <h6 class="mb-0">   ماہانہ آمدنی </small></h6>
               </div>
               <div class="flex-shrink-0">
@@ -95,6 +95,7 @@
             </div>
         </a>
           </li>
+          
     </ul>
         
       </div>

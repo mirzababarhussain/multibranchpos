@@ -281,5 +281,9 @@ class ReportsController extends Controller
 
     }
 
+    public function get_income(){
+        return view('reports.incom');
+    }
+
 
 }
